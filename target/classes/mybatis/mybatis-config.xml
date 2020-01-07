@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias alias="bdto" type="com.care.board_dto.BoardDTO" />
+		<typeAlias alias="rdto"
+			type="com.care.board_replydto.BoardReplyDTO" />
+		<typeAlias alias="ldto"
+			type="com.care.board_likesdto.BoardLikesDTO" />
+		<typeAlias alias="vo" type="com.care.member_vo.MemberVO" />
+		<typeAlias alias="dto"
+			type="com.care.imageboard_dto.ImageBoardDTO" />
+		<typeAlias alias="fdto"
+			type="com.care.fileboard_dto.FileBoardDTO" />
+		<typeAlias alias="cdto" type="com.care.calendar_dto.TestDTO" />
+	</typeAliases>
+</configuration>
+
+

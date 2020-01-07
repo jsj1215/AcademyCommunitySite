@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.care.mybatis.boardMapper">
+
+
+	<select id="boardList" resultType="bdto">
+		<!-- select * from spring_board -->
+		select B.* from(select rownum rn, A.* from (select * from spring_board order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	<insert id="write" parameterType="bdto">
+		insert into spring_board (id, name, title, content, idgroup) values (spring_board_seq.nextval, #{name}, #{title}, #{content}, spring_board_seq.currval)
+	</insert>
+	<select id="info" resultType="bdto">
+		select * from spring_board where id=#{id}
+	</select>
+	<update id="modify" parameterType="bdto">
+		update spring_board set title=#{title}, content=#{content} where id=#{id}
+	</update>
+	<delete id="delete" parameterType="String">
+		delete from spring_board where id=#{id}
+	</delete>
+	<update id="upHit" parameterType="String">
+		update spring_board set hit=hit+1 where id=#{id}
+	</update>
+	<insert id="saveLikes" parameterType="ldto">
+		insert into spring_board_likes values (#{id}, #{name}, 1)
+	</insert>
+	<delete id="removeLikes" parameterType="ldto">
+		delete from spring_board_likes where id=#{id} and name=#{name}
+	</delete>
+	<delete id="removeAllLikes" parameterType="String">
+		delete from spring_board_likes where id=#{id}
+	</delete>
+	<update id="likes" parameterType="ldto">
+		update spring_board set likes=likes+1 where id=#{id}
+	</update>
+	<update id="unlikes" parameterType="ldto">
+		update spring_board set likes=likes-1 where id=#{id}
+	</update>
+	<select id="checkLikes" resultType="ldto">
+		select chk from spring_board_likes where id=#{id} and name=#{name}
+	</select>
+	<update id="downHit" parameterType="String">
+		update spring_board set hit=hit-1 where id=#{id}
+	</update>
+	<select id="showPage" resultType="Integer">
+		select count(*) from spring_board
+	</select>
+	
+	<select id="nameSearch" resultType="bdto">
+		select B.* from(select rownum rn, A.* from (select * from spring_board where name like '%'||#{searchData}||'%' order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10	
+	</select>
+	<select id="titleSearch" resultType="bdto">
+		select B.* from(select rownum rn, A.* from (select * from spring_board where title like '%'||#{searchData}||'%' order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	<select id="contentSearch" resultType="bdto">
+		select B.* from(select rownum rn, A.* from (select * from spring_board where content like '%'||#{searchData}||'%' order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	<select id="searchNamePage" resultType="Integer">
+		select count(*) from spring_board where name like '%'||#{searchData}||'%'
+	</select>
+	<select id="searchTitlePage" resultType="Integer">
+		select count(*) from spring_board where title like '%'||#{searchData}||'%'
+	</select>
+	<select id="searchContentPage" resultType="Integer">
+		select count(*) from spring_board where content like '%'||#{searchData}||'%'
+	</select>
+	<insert id="replySave" parameterType="rdto">
+		insert into spring_reply (id, name, content, step, indent, chk) values (#{id}, #{name}, #{content}, spring_board_reply_seq.nextval, #{indent}, spring_board_reply_chk_seq.nextval)
+	</insert>
+	<select id="replyList" resultType="rdto">
+		select * from spring_reply where id=#{id} order by step asc, chk asc
+	</select>
+	<delete id="replyDelete" parameterType="String">
+		delete from spring_reply where id=#{id}
+	</delete>
+	<delete id="replyRemove" parameterType="rdto">
+		delete from spring_reply where chk=#{chk}
+	</delete>
+	<delete id="replyOfFirst" parameterType="rdto">
+		delete from spring_reply where step=#{step}
+	</delete>
+	<insert id="replyToReply" parameterType="rdto">
+		insert into spring_reply (id, name, content, step, indent, chk) values (#{id}, #{name}, #{content}, #{step}, #{indent}+1, spring_board_reply_chk_seq.nextval)
+	</insert>
+	<update id="replyModify" parameterType="rdto">
+		update spring_reply set content=#{content} where chk=#{chk}
+	</update>
+	<select id="preInfo" resultType="String">
+		select id from spring_board where id<![CDATA[ < ]]>#{id} and rownum=1 order by id desc
+	</select>
+	<select id="nextInfo" resultType="String">
+		select id from spring_board where id<![CDATA[ > ]]>#{id} and rownum=1 order by id asc
+	</select>
+	<select id="replyCount" resultType="Integer">
+		select count(*) from spring_reply where id=#{id}
+	</select>
+	
+	
+	
+	
+	
+	<select id="joinconfirm" resultType="string">
+		select * from user_t where id=#{id}
+	</select>
+	<select id="emailconfirm" resultType="string">
+		select * from user_t where email=#{email}
+	</select>
+	<select id="loginconfirm" resultType="vo">
+		select * from user_t where id=#{id} 
+	</select>
+	<select id="idconfirm" resultType="vo" parameterType="vo">
+		select * from user_t where name=#{name} and email=#{email}  
+	</select>
+	<select id="pwconfirm" resultType="vo" parameterType="vo">
+		select * from user_t where id=#{id} and name=#{name} and email=#{email} and question=#{question} and answer=#{answer} 
+	</select>
+	<select id="usermember" resultType="vo">
+		select * from user_t order by case when classes in ('관리자','강사') then 0 else 1 end, name asc
+	</select>
+	<insert id="joinmember" parameterType="vo">
+		insert into user_t values(#{id},#{pw},#{name},#{year},#{month},#{days},#{gender},#{email},#{question},#{answer},#{classes})
+	</insert>
+	<update id="updatemember" parameterType="vo">
+		update user_t set pw=#{pw}, email=#{email}, question=#{question}, answer=#{answer} where id=#{id}
+	</update>
+	<update id="changepw" parameterType="vo">
+		update user_t set pw=#{pw} where id=#{id}
+	</update>
+	<update id="changeclasses" parameterType="vo">
+		update user_t set classes=#{classes} where id=#{id}
+	</update>
+	<delete id="deletemember" parameterType="vo">
+		delete from user_t where id=#{id} and pw=#{pw} 
+	</delete>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	<!-- ## 이미지 게시판 ## -->
+	<!-- ========================================================================= -->
+	<!-- ■ 메인 보여주기 -->
+	<!-- ========================================================================= -->
+	<!-- <select id="imageTable" resultType="dto"> select * from imageboard 
+		A, imagetable B where A.num = B.board_num order by board_num desc select 
+		* from imagetable order by board_num desc </select> -->
+
+	<!-- 1. 전체 보여주기 -->
+	<select id="imageBoardSelectAllDTO" resultType="dto">
+		select 	A.num					AS num, 
+				A.id					AS id, 
+				A.title					AS title, 
+				A.content				AS content, 
+				A.savedate				AS savedate, 
+				A.hit					AS hit, 
+				A.idgroup				AS idgroup,
+				A.likes					AS likes,
+				B.image_index			AS image_index,
+				B.board_num				AS board_num,
+				B.original_file_name	AS original_file_name,
+				B.stored_file_name		AS stored_file_name,
+				B.file_size				AS file_size
+			from 	imageboard A, 
+					imagetable B 
+			where A.num = B.board_num 
+			order by board_num desc
+	</select>
+	<!-- 2. 메인에서 검색하기 -->
+	<!-- -> ★ SubQuery를 이용해서 검색!!!! -->
+	
+	<!-- 2-1. 메인에서 검색하기(id) -->
+	<select id = "imageBoardSearchId" resultType="dto">
+	<!-- 2)그 다음, 이미 조인된 테이블에서(NEW_TABLE) 사용자가 검색한 searchWord와 같은 값을 찾는다.  -->
+		SELECT  NEW_TABLE.num					AS	  num, 
+        		NEW_TABLE.id                	AS    id, 
+       			NEW_TABLE.title             	AS    title, 
+        		NEW_TABLE.content           	AS    content, 
+       			NEW_TABLE.savedate            	AS    savedate, 
+        		NEW_TABLE.hit                 	AS    hit, 
+        		NEW_TABLE.idgroup             	AS    idgroup,
+        		NEW_TABLE.likes               	AS    likes,
+        		NEW_TABLE.image_index         	AS    image_index,
+        		NEW_TABLE.board_num           	AS    board_num,
+        		NEW_TABLE.original_file_name  	AS    original_file_name,
+        		NEW_TABLE.stored_file_name    	AS    stored_file_name,
+        		NEW_TABLE.file_size           	AS    file_size
+		FROM( <!-- 1) 먼저, imageBoard와 imageTable을 join해준다(num과 board_num이 같은경우) -->
+				SELECT 	A.num					AS num, 
+						A.id					AS id, 
+						A.title					AS title, 
+						A.content				AS content, 
+						A.savedate				AS savedate, 
+						A.hit					AS hit, 
+						A.idgroup				AS idgroup,
+						A.likes					AS likes,
+						B.image_index			AS image_index,
+						B.board_num				AS board_num,
+						B.original_file_name	AS original_file_name,
+						B.stored_file_name		AS stored_file_name,
+						B.file_size				AS file_size
+				FROM 	imageboard A, 
+						imagetable B 
+				WHERE A.num = B.board_num
+			)	NEW_TABLE
+		WHERE 	NEW_TABLE.id like '%'||#{searchWord}||'%' 
+		ORDER BY NEW_TABLE.board_num DESC
+	</select>
+	
+	<!-- 2-2. 메인에서 검색하기(title) -->
+	<select id = "imageBoardSearchTitle" resultType="dto">
+		SELECT  NEW_TABLE.num					AS	  num, 
+        		NEW_TABLE.id                  	AS    id, 
+        		NEW_TABLE.title               	AS    title, 
+        		NEW_TABLE.content             	AS    content, 
+        		NEW_TABLE.savedate            	AS    savedate, 
+        		NEW_TABLE.hit                 	AS    hit, 
+        		NEW_TABLE.idgroup             	AS    idgroup,
+        		NEW_TABLE.likes               	AS    likes,
+        		NEW_TABLE.image_index         	AS    image_index,
+        		NEW_TABLE.board_num           	AS    board_num,
+        		NEW_TABLE.original_file_name  	AS    original_file_name,
+        		NEW_TABLE.stored_file_name    	AS    stored_file_name,
+        		NEW_TABLE.file_size           	AS    file_size
+		FROM(
+				SELECT 	A.num					AS num, 
+						A.id					AS id, 
+						A.title					AS title, 
+						A.content				AS content, 
+						A.savedate				AS savedate, 
+						A.hit					AS hit, 
+						A.idgroup				AS idgroup,
+						A.likes					AS likes,
+						B.image_index			AS image_index,
+						B.board_num				AS board_num,
+						B.original_file_name	AS original_file_name,
+						B.stored_file_name		AS stored_file_name,
+						B.file_size				AS file_size
+				FROM 	imageboard A, 
+						imagetable B 
+				WHERE A.num = B.board_num
+			)	NEW_TABLE
+		WHERE 	NEW_TABLE.title like '%'||#{searchWord}||'%' 
+		ORDER BY NEW_TABLE.board_num DESC
+	</select>	
+	
+	<!-- 2-3. 메인에서 검색하기(content) -->
+	<select id = "imageBoardSearchContent" resultType="dto">
+		SELECT  NEW_TABLE.num					AS	  num, 
+        		NEW_TABLE.id                  	AS    id, 
+        		NEW_TABLE.title               	AS    title, 
+        		NEW_TABLE.content             	AS    content, 
+        		NEW_TABLE.savedate            	AS    savedate, 
+        		NEW_TABLE.hit                 	AS    hit, 
+        		NEW_TABLE.idgroup             	AS    idgroup,
+        		NEW_TABLE.likes               	AS    likes,
+        		NEW_TABLE.image_index         	AS    image_index,
+        		NEW_TABLE.board_num           	AS    board_num,
+        		NEW_TABLE.original_file_name  	AS    original_file_name,
+        		NEW_TABLE.stored_file_name    	AS    stored_file_name,
+        		NEW_TABLE.file_size           	AS    file_size
+		FROM(
+				SELECT 	A.num					AS num, 
+						A.id					AS id, 
+						A.title					AS title, 
+						A.content				AS content, 
+						A.savedate				AS savedate, 
+						A.hit					AS hit, 
+						A.idgroup				AS idgroup,
+						A.likes					AS likes,
+						B.image_index			AS image_index,
+						B.board_num				AS board_num,
+						B.original_file_name	AS original_file_name,
+						B.stored_file_name		AS stored_file_name,
+						B.file_size				AS file_size
+				FROM 	imageboard A, 
+						imagetable B 
+				WHERE A.num = B.board_num
+			)	NEW_TABLE
+		WHERE 	NEW_TABLE.content like '%'||#{searchWord}||'%' 
+		ORDER BY NEW_TABLE.board_num DESC
+	</select>
+	<!-- ■ 댓글 저장 -->
+	<insert id="imageBoardReplyInsert" parameterType="dto">
+		insert into
+		imageboard_reply (reply_num, reply_id, reply_content,step, indent, chk) values
+		(#{reply_num}, #{reply_id}, #{reply_content},
+		imageboard_reply_step_seq.nextval, 0, imageboard_reply_chk_seq.nextval)
+	</insert>
+	
+	<!-- ■ 댓글 보여주기 -->
+	<select id="imageBoardViewReply" resultType="dto">
+	<!-- select * from imageboard_reply where reply_num = #{reply_num} order by chk desc -->
+	SELECT	NEW_TABLE.num 				AS num,
+			NEW_TABLE.id 				AS id,
+			NEW_TABLE.reply_num 		AS reply_num,
+			NEW_TABLE.reply_id 			AS reply_id,
+			NEW_TABLE.reply_content 	AS reply_content,
+			NEW_TABLE.reply_date		AS reply_date,
+			NEW_TABLE.chk 				AS chk
+	FROM(
+			SELECT	A.num 				AS num,
+					A.id 				AS id,
+					B.reply_num			AS reply_num,
+					B.reply_id 			AS reply_id,
+					B.reply_content 	AS reply_content,
+					B.reply_date		AS reply_date,
+					B.chk 				AS chk
+		
+			FROM 
+					imageboard A,
+					imageboard_reply B
+			WHERE 
+					A.num = B.reply_num
+		) NEW_TABLE
+	WHERE NEW_TABLE.reply_num = #{reply_num}
+	ORDER BY NEW_TABLE.chk desc
+	</select>
+	
+	<!-- ■ 댓글 수정 -->
+	<update id="imageBoardEditReply">
+		update imageboard_reply set
+		reply_content=#{reply_content} where reply_num=#{reply_num} and chk=#{chk}
+	</update>
+	<!-- ■ 댓글 삭제 -->
+	<delete id="imageBoardDeleteReply" parameterType="dto">
+		delete from
+		imageboard_reply where reply_num=#{reply_num} and chk=#{chk}
+	</delete>
+
+
+
+	<!-- ========================================================================= -->
+	<!-- ■ 저장하기 -->
+	<!-- ========================================================================= -->
+	<!--★ 여기서 나의 문제점! 나는 글 저장하는 테이블과 이미지 저장하는 테이블을 따로 두개를 쓰고 있음.(imageboard와 imagetable)
+	      imageboard의 num칼럼과 imagetable의 board_num칼럼은 같은 값을 저장해주어야 함. 
+		    그런데 저장을 실행하는 동작들은 한 번에 작동하게 되는데, 글 저장하는 테이블에서 num값이 nextval로 동작되고 있음. 
+		    따라서, imagetable에서 board_num을 가지고 오려는데 아직 db에 num값이 저장되지 않았기에 가져올 방법이 없음. 
+		    이 때, selectKey를 사용하여 keyProperty의 변수명에 해당하는 값을 잠시 담아줌!
+		  (주의 : dto에 keyProperty와 동일한 변수명이 존재해야함.) 그럼 이미지 저장할 때 dto에 저장된 num값을 가지고와서 사용할 수 있게 됨. -->
+	<!-- 1. 글 저장 -->
+	<insert id="imageBoardSaveData" parameterType="dto">
+		insert into imageboard (num,id,title,content,idgroup) values
+		(imageboard_seq.nextval, #{id}, #{title},
+		#{content},imageboard_seq.currval)
+		<selectKey resultType="int" keyProperty="num">
+			select
+			imageboard_seq.currval as boardResult from dual
+		</selectKey>
+	</insert>
+	<!-- 2. 이미지 저장 -->
+	<insert id="imageBoardImageFile" parameterType="dto">
+		insert into imagetable
+		(image_index,board_num,id,original_file_name,stored_file_name,file_size)
+		values
+		(imagetable_seq.nextval,#{num}, #{id}, #{original_file_name},<!-- 
+			위에서 selectKey로 dto에 nextval된 num값을 저장해주었으므로, #{num}으로 가져다 쓸 수 있음. -->
+		#{stored_file_name}, #{file_size})
+	</insert>
+
+	<!-- ========================================================================= -->
+	<!-- ■ 조회하기 -->
+	<!-- ========================================================================= -->
+	<!-- 1. 게시글 조회 -->
+	<select id="imageBoardSelectNum" resultType="dto">
+		select * from imageboard where num=#{num}
+	</select>
+	<!-- 2. 이미지 조회 -->
+	<select id="imageBoardSelectImage" resultType="dto">
+		select * from imagetable where board_num=#{board_num}
+	</select>
+	<!-- 3. 조회수 증가 -->
+	<update id="imageBoardUpHit" parameterType="dto">
+		update imageboard set
+		hit = hit+1 where num=#{num}
+	</update>
+	<!-- 4. 좋아요 했는지 여부 확인하기 -->
+	<select id="imageBoardViewLikes" resultType="dto">
+		select * from imageboard_likes where num=#{num} and id=#{id} and likes = 1
+	</select>
+
+	<!-- 5. (imageBoard)에서 토탈 좋아요 수 수정하기 -->
+	<update id="imageBoardTotalLikes" parameterType="Integer">
+		update imageboard set likes = likes+1 where num=#{num}
+	</update>
+	<!-- 6. 좋아요 -->
+	<insert id="imageBoardInsertLikes">
+		insert into imageboard_likes(num,id,likes) values (#{num},#{id},1)
+	</insert>
+
+	<!-- 7. (imageBoard)에서 토탈 좋아요취소 수 수정하기 -->
+	<update id="imageBoardTotalDisLikes" parameterType="Integer">
+		update
+		imageboard set likes = likes-1 where num=#{num}
+	</update>
+	<!-- 8. 좋아요 취소 -->
+	<delete id="imageBoardDisLikes" parameterType="dto">
+		delete from
+		imageboard_likes where num=#{num} and id=#{id}
+	</delete>
+	<!-- 9. 좋아요 총 개수 -->
+	<select id="imageBoardLikesTotal" resultType="dto">
+		select likes from imageboard where num=#{num}
+	</select>
+	
+	<!-- 10. 이전글 보기 -->
+	<select id="imageBoardPreview" resultType="String">
+		select num from imageBoard where num<![CDATA[ < ]]>#{num} and rownum=1 order by num desc
+	</select>
+	
+	<!-- 11. 다음글 보기 -->
+	<select id="imageBoardNextview" resultType="String">
+	      select num from imageBoard where num<![CDATA[ > ]]>#{num} and rownum=1 order by num asc
+	</select> 
+	
+	
+	<!-- ========================================================================= -->
+	<!-- ■ 삭제하기 -->
+	<!-- ========================================================================= -->
+	<!-- 1. 글 삭제 -->
+	<delete id="imageBoardDelete" parameterType="dto">
+		delete from imageboard where num=#{num}
+	</delete>
+	<!-- 2. 이미지 삭제하기 -->
+	<delete id="imageBoardDeleteImage" parameterType="dto">
+		delete from	imagetable where board_num=#{board_num}
+	</delete>
+	<!-- ========================================================================= -->
+	<!-- ■ 이미지다운로드 -->
+	<!-- ========================================================================= -->
+	<select id="imageDownload" resultType="dto">
+		select * from imagetable where board_num=#{board_num}
+	</select>
+	<!-- ========================================================================= -->
+	<!-- ■ 수정하기 -->
+	<!-- ========================================================================= -->
+	<!-- 1. 수정에 필요한 폼 보여주기(글만) -->
+	<select id="imageBoardModifyView" resultType="dto">
+		select * from imageboard where num=#{num}
+	</select>
+	
+	<!-- 	2. 수정에 필요한 폼 보여주기(이미지만) 
+	<select id="imageBoardModifyViewImage" resultType="dto">
+		select * from
+		imagetable
+		where board_num=#{board_num}
+	</select> -->
+	
+	<!-- 3. 글 수정 -->
+	<update id="imageBoardUpdate" parameterType="dto">
+		update imageboard set title=#{title},content=#{content} where num=#{num}
+	</update>
+	<!-- 4. 이미지 수정 -->
+	<update id="imageBoardUpdateImage" parameterType="dto">
+		update imagetable set
+		original_file_name=#{original_file_name},stored_file_name=#{stored_file_name},file_size=#{file_size}
+		where board_num=#{board_num}
+	</update>
+	
+	
+	
+	<!-- ========================================================================= -->
+	<select id="fileBoardList" resultType="fdto">
+		select B.* from(select rownum rn, A.* from (select * from file_board order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	
+	<select id="fileMaxPage" resultType="Integer">
+		select count(*) from file_board
+	</select>
+	
+	<select id="fileList" resultType="fdto">
+		select * from file_board_save where id=#{id}
+	</select>
+	
+	
+	<insert id="boardsave" parameterType="fdto">
+		insert into file_board values
+			(file_board_seq.nextval,#{name},#{title},#{content},sysdate,0,file_board_seq.currval,0,#{filechk})
+		<selectKey resultType="int" keyProperty="id">
+        	select
+         	file_board_seq.currval as boardResult from dual
+    	</selectKey>
+	</insert>
+	
+	
+	<insert id="multiFileUp" parameterType="fdto">
+		insert into file_board_save values
+			(#{id},#{file_name},#{file_name_key},#{file_size},#{file_ext},0)
+	</insert>
+	
+	
+	<delete id="boardDelete" parameterType="String">
+		delete from file_board where id=#{id}
+	</delete>
+	
+	<update id="boardupdate" parameterType="fdto">
+		update file_board 
+			set name=#{name},title=#{title},content=#{content} where id=#{id}
+	</update>
+	
+	<select id="fileModifyForm" resultType="fdto">
+		select * from file_board where id=#{id}
+	</select>
+	
+	<update id="fileBoardHitPlus" parameterType="String">
+		update file_board set hit=hit+1 where id=#{id}
+	</update>
+	
+	
+	<delete id="fileRemove" parameterType="fdto">
+		delete from file_board_save where file_name_key=#{file_name_key} and id=#{id}
+	</delete>
+	<update id="fileChk" parameterType="String">
+		update file_board set filechk='N' where id=#{id} 
+	</update>
+	
+	<update id="fileModify" parameterType="fdto">
+		update file_board set title=#{title},content=#{content},filechk=#{filechk} where id=#{id} 
+	</update>
+	
+	<select id="deleteFileList" resultType="fdto">
+		select * from file_board_save where id=#{id}
+	</select>
+	
+	<delete id="deleteFile" parameterType="String">
+		delete from file_board_save where id=#{id}
+	</delete>
+
+
+	<select id="searchFileTitle" resultType="fdto">
+		select B.* from(select rownum rn, A.* from (select * from file_board where title like '%'||#{searchData}||'%' order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	
+	<select id="searchFileName" resultType="fdto">
+		select B.* from(select rownum rn, A.* from (select * from file_board where name like '%'||#{searchData}||'%' order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	
+	<select id="searchFileContent" resultType="fdto">
+		select B.* from(select rownum rn, A.* from (select * from file_board where content like '%'||#{searchData}||'%' order by id desc)A)B where rn between (#{page}*10)-9 and #{page}*10
+	</select>
+	
+	<select id="fileTitleMaxPage" resultType="Integer">
+		select count(*) from file_board where title like '%'||#{searchData}||'%'
+	</select>
+	
+	<select id="fileNameMaxPage" resultType="Integer">
+		select count(*) from file_board where name like '%'||#{searchData}||'%'
+	</select>
+	
+	<select id="fileContentMaxPage" resultType="Integer">
+		select count(*) from file_board where content like '%'||#{searchData}||'%'
+	</select>
+
+	<select id="fileCount" resultType="Integer">
+		select count(*) from file_board_save where id=#{id}
+	</select>
+	
+	<update id="boardFileChkN" parameterType="Integer">
+		update file_board set filechk='N' where id=#{id}
+	</update>
+	
+	<update id="boardFileChkY" parameterType="Integer">
+		update file_board set filechk='Y' where id=#{id}
+	</update>
+
+	<select id="preFileBoardView" resultType="String">
+		select id from file_board where id<![CDATA[ < ]]>#{id} and rownum=1 order by id desc
+	</select>
+
+	<select id="nextFileBoardView" resultType="String">
+		select id from file_board where id<![CDATA[ > ]]>#{id} and rownum=1 order by id asc
+	</select>
+	<!-- =====================================Calendar================================== -->
+
+ 	<select id="listAll" resultType="cdto">
+ 		select * from attend
+ 	</select>
+
+ 	<select id="getjun" resultType="cdto">
+ 		select * from attend where month=6 AND name=#{name}
+ 	</select>		
+ 	
+  	<select id="getjuly" resultType="cdto">
+  		select * from attend where month=7 AND name=#{name}
+  	</select>
+ 
+  	<select id="getaug" resultType="cdto">
+  		select * from attend where month=8 AND name=#{name}
+  	</select>	
+ 
+  	<select id="getsep" resultType="cdto">
+  		select * from attend where month=9 AND name=#{name}
+  	</select>	
+ 
+  	<select id="getoct" resultType="cdto">
+  		select * from attend where month=10 AND name=#{name}
+  	</select>	
+ 	
+  	<select id="getnov" resultType="cdto">
+  		select * from attend where month=11 AND name=#{name}
+  	</select>
+ 
+  	<select id="getdec" resultType="cdto">
+  		select * from attend where month=12 AND name=#{name}
+  	</select>							
+ 
+   	<insert id="savedata" parameterType="cdto">
+ 		insert into attend values(#{month}, #{day}, #{attend}, #{mydate}, #{name})
+ 	</insert>	
+ 	
+    <insert id="updatedata" parameterType="cdto">
+ 		update attend set attend=#{attend} where month=#{month} AND day=#{day} AND name=#{name}
+ 	</insert>	
+
+
+
+
+</mapper>
+
+	
