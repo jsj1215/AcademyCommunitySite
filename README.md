@@ -6,7 +6,7 @@
   <li><b>개발 환경 : </b>javaEE, Eclipse, Oracle, Spring, Mybatis, JSP, Ajax, jQuery, API </li>
   <li><b>프로젝트 소개 : </b>수강생의 출석관리와 정보 교환을 위한 학원 커뮤니티 사이트</li>
   <li><b>본인 개발 Part</b>
-  : 이미지 갤러리 게시판 기획 및 설계</li></ul><br>
+  : 이미지 갤러리 게시판 기획 및 설계, 기능구현, 디자인 적용</li></ul><br>
     <b>1)이미지 갤러리 메인</b><br>
     &nbsp;&nbsp;&nbsp;-Ajax를 사용하여 최신게시글 순서대로 출력, paging 처리<br>
     &nbsp;&nbsp;&nbsp;-Ajax를 사용하여 아이디/제목/내용별로 게시글 검색<br> 
